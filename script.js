@@ -3,6 +3,7 @@ var API_KEY = "4464099b9d397e08b4e431c23e1f5cab";
 //GRAB the html elements
 var inputEL = document.getElementById("searchText");
 var searchBtn = document.getElementById("searchBtn");
+var cityListEl = document.getElementById("city-list");
 
 function getLanLat() {
   //fetch request for the geocoding api based on the city name
@@ -49,12 +50,19 @@ function getLanLat() {
           document.getElementById("humidity").textContent ="Humidity : "+ oneCallData.current.humidity + " %";
           document.getElementById("UV Index").textContent = "Uv Index : "+ oneCallData.current.uvi;
           document.getElementById("wind").textContent = "Wind : "+ oneCallData.current.wind_speed;
-          //UNIX timestamp 
+
+       
           console.log(oneCallData.daily[2])
           for( var i =0; i < 5; i++){
               console.log(oneCallData.daily[i] , "Day" , i); 
+              console.log();
+            document.getElementById("0").textContent = "Temperature : "+ oneCallData.daily ,[];
+            // document.getElementById("Humidity").textContent = "Humidity : "+ oneCallData.current.humidity + "%";
+            // document.getElementById("0").textContent = "Uv Index : "+ oneCallData.current.uvi ;
+            // document.getElementById("0").textContent = "Wind : "+ oneCallData.current.wind_speed ;
           }
         })
+       
         .catch(function (error) {
           console.log("Api Error", error);
         });
@@ -65,3 +73,4 @@ function getLanLat() {
 }
 
 searchBtn.addEventListener("click", getLanLat);
+  
