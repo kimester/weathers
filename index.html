@@ -13,7 +13,7 @@
   <body class="light-green lighten-5">
     <header>
       <h2 class ="teal darken-1
-      ">Header</h2>
+      ">Weather</h2>
     </header>
     <main>
       
@@ -21,15 +21,25 @@
             <h5>Search for a city:</h5>
             <br><br>
             <div class="input-field col s6">
-              <input value="" id="searchText" type="text" class="validate">
+              <input value="" id="searchText" type="text" class="validate" placeholder="Please the enter city">
               <label class="active" for="first_name2"></label>
             </div>
             <button class="btn waves-effect waves-light" type="Search" name="action" id="searchBtn">Search
               <i class="material-icons right"></i>
             </button>
           </div>
-         
-
+        
+          <div class="row">
+              <div class="col s12 m5">
+               <h3 id="current-city">Sample</h3>
+               <p id = 'temp'>Temp</p>
+               <p id = 'humidity'>humidity</p>
+               <p id = 'UV Index'>UV Index</p>
+               <p id = 'wind'>Wind</p>
+              </div>
+            </div>
+            <hr/>
+         <h4>5 day Forecast</h4> 
         <div class="row">
             <div class="col s12 m5">
               <div class="card-panel teal">
