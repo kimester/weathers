@@ -80,12 +80,12 @@ function forecast(lat, lon) {
           var col = $("<div>").addClass("col-2");
           var box = $("<div>").addClass("bg-dark bg-opacity-50");
           var date = moment().add(i,"days").format("M/D/YYYY");
-          var ddate = $("<h5>").addClass("text-white px-2 pt-2").text(date);
+          var date = $("<h5>").addClass("text-white px-2 pt-2").text(date);
 
           $("#forecast").append(div);
           $(div).append(col);
           $(col).append(box);
-          $(box).append(ddate, icon, temp, wind, humidity);
+          $(box).append(date, icon, temp, wind, humidity);
       }
   });
 }
