@@ -1,76 +1,91 @@
-var API_KEY = "4464099b9d397e08b4e431c23e1f5cab";
+$("#btn").on("click", function() {
+  var input = $("#input").val();
+  weather(input);
+  $("#input").val("");
 
-//GRAB the html elements
-var inputEL = document.getElementById("searchText");
-var searchBtn = document.getElementById("searchBtn");
-var cityListEl = document.getElementById("city-list");
+  if (!searchHistory.includes(input)) {
+      var searchButton = $("<button>").addClass("btn col-12 btn-secondary my-2").text(input);
+      $("#history").append(searchButton);
+      searchHistory.push(input);
+     } else {return}
+      localStorage.setItem("search-history",JSON.stringify(searchHistory));
+});
 
-function getLanLat() {
-  //fetch request for the geocoding api based on the city name
-  var geoCodingURL =
-    "http://api.openweathermap.org/geo/1.0/direct?q=" +
-    inputEL.value +
-    "&limit=1&appid=" +
-    API_KEY;
+$("#history").on("click", function(event) {
+  var history = $(event.target).text();
+  weather(history);
+  
+});
 
-    //APi for getting LAt and Lon for the city searched 
-  fetch(geoCodingURL)
-    .then((response) => {
-      return response.json();
-    })
-    .then(function (data) {
-      console.log("Api response", data[0]);
-      //showing the cityname on the HTML page
-      document.getElementById("current-city").textContent = data[0].name;
+refresh();
 
-      var lat = data[0].lat;
-      var lon = data[0].lon;
-
-      var OneCallURL =
-        "https://api.openweathermap.org/data/2.5/onecall?lat=" +
-        lat +
-        "&lon=" +
-        lat +
-        "&exclude=hourly,minutely,alerts&appid=" +
-        API_KEY +"&units=imperial";
-
-        //Getting the current and 5-day forecast for the searched city using Lat and Lon 
-      fetch(OneCallURL)
-        .then((response) => {
-          return response.json();
-        })
-        .then(function (oneCallData) {
-          console.log("Api response", oneCallData);
-          console.log("Current", oneCallData.current.temp);
-          console.log("Current", oneCallData.current.humidity);
-          console.log("Current", oneCallData.current.uvi);
-          console.log("Current", oneCallData.current.wind_speed);
-
-          document.getElementById("temp").textContent ="Temperature : "+ oneCallData.current.temp + " F";
-          document.getElementById("humidity").textContent ="Humidity : "+ oneCallData.current.humidity + " %";
-          document.getElementById("UV Index").textContent = "Uv Index : "+ oneCallData.current.uvi;
-          document.getElementById("wind").textContent = "Wind : "+ oneCallData.current.wind_speed;
-
-       
-          console.log(oneCallData.daily[2])
-          for( var i =0; i < 5; i++){
-              console.log(oneCallData.daily[i] , "Day" , i); 
-              console.log();
-            document.getElementById("0").textContent = "Temperature : "+ oneCallData.daily ,[];
-            // document.getElementById("Humidity").textContent = "Humidity : "+ oneCallData.current.humidity + "%";
-            // document.getElementById("0").textContent = "Uv Index : "+ oneCallData.current.uvi ;
-            // document.getElementById("0").textContent = "Wind : "+ oneCallData.current.wind_speed ;
-          }
-        })
-       
-        .catch(function (error) {
-          console.log("Api Error", error);
-        });
-    })
-    .catch(function (error) {
-      console.log("Api Error", error);
-    });
+function refresh() {
+  var local = JSON.parse(localStorage.getItem("search-history")) || [];
+  if (local === null) {
+      return;
+  } else {
+      for (var i = 0; i < local.length; i++) {
+          var searchButton = $("<button>").addClass("btn col-12 btn-secondary my-2").text(local[i]);
+          $("#history").append(searchButton);
+      }
+  }
 }
 
-searchBtn.addEventListener("click", getLanLat);
-  
+var searchHistory = JSON.parse(localStorage.getItem("search-history")) || [];
+var today = moment().format("M/D/YYYY");
+
+function weather(input) {
+  $("#weather").empty();
+  var url = "https://api.openweathermap.org/data/2.5/weather?q=" + input + "&appid=adf080c4900ab48938f6770e1ae7a9c0&units=imperial";
+  fetch(url)
+  .then(response => {return response.json()})
+  .then(data => {
+      var city = $("<h2>").addClass("d-inline-flex fw-bold city pt-2").text(data.name + " " + today + "  ");
+      var iconLink = "http://openweathermap.org/img/wn/" + data.weather[0].icon + "@2x.png";
+      var icon = $("<img>").addClass("align-top pt-2").attr("src", iconLink).attr("style", "height:50px;");
+      var temp = $("<p>").text("Temp: " + data.main.temp + " ℉");
+      var wind = $("<p>").text("Wind: " + data.wind.speed + " MPH");
+      var humidity = $("<p>").text("Humidity: " + data.main.humidity + " %");
+
+      $("#weather").append(city, icon, temp, wind, humidity);
+      
+      var lat = data.coord.lat;
+      var lon = data.coord.lon;
+
+      forecast(lat, lon);
+  });
+}
+
+function forecast(lat, lon) {
+  $("#forecast").empty();
+  var url = "https://api.openweathermap.org/data/2.5/onecall?lat=" + lat + "&lon=" + lon + "&appid=adf080c4900ab48938f6770e1ae7a9c0&units=imperial"
+  fetch(url)
+  .then(response => {return response.json()})
+  .then(data => {
+      var uv = $("<p>").text("UV Index: " + data.current.uvi);
+      $("#weather").append(uv);
+
+      var fore = $("<h3>").addClass("fw-bold mt-3").text("5-Day Forecast:")
+      $("#forecast").append(fore);
+
+      var div = $("<div>").addClass("col-12 d-inline-flex justify-content-between");
+
+      for (var i = 1; i < 6; i++) {
+          var temp = $("<p>").addClass("text-white px-2").text("Temp: " + data.daily[i].temp.day + " ℉");
+          var wind = $("<p>").addClass("text-white px-2").text("Wind: " + data.daily[i].wind_speed + " MPH");
+          var humidity = $("<p>").addClass("text-white px-2 pb-2").text("Humidity: " + data.daily[i].humidity + " %");
+          var iconLink = "http://openweathermap.org/img/wn/" + data.daily[i].weather[0].icon + "@2x.png";
+          var icon = $('<img>').attr('src', iconLink).attr("style", "height:30px;");
+          
+          var col = $("<div>").addClass("col-2");
+          var box = $("<div>").addClass("bg-dark bg-opacity-50");
+          var date = moment().add(i,"days").format("M/D/YYYY");
+          var ddate = $("<h5>").addClass("text-white px-2 pt-2").text(date);
+
+          $("#forecast").append(div);
+          $(div).append(col);
+          $(col).append(box);
+          $(box).append(ddate, icon, temp, wind, humidity);
+      }
+  });
+}
